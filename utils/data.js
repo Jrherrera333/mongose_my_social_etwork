@@ -1,121 +1,67 @@
-const names = [
-  'Aaran',
-  'Aaren',
-  'Aarez',
-  'Aarman',
-  'Aaron',
-  'Aaron-James',
-  'Aarron',
-  'Aaryan',
-  'Aaryn',
-  'Aayan',
-  'Aazaan',
-  'Abaan',
-  'Abbas',
-  'Abdallah',
-  'Abdalroof',
-  'Abdihakim',
-  'Abdirahman',
-  'Abdisalam',
-  'Abdul',
-  'Abdul-Aziz',
-  'Abdulbasir',
-  'Abdulkadir',
-  'Abdulkarem',
-  'Ze',
-  'Zechariah',
-  'Zeek',
-  'Zeeshan',
-  'Zeid',
-  'Zein',
-  'Zen',
-  'Zendel',
-  'Zenith',
-  'Zennon',
-  'Zeph',
-  'Zerah',
-  'Zhen',
-  'Zhi',
-  'Zhong',
-  'Zhuo',
-  'Zi',
-  'Zidane',
-  'Zijie',
-  'Zinedine',
-  'Zion',
-  'Zishan',
-  'Ziya',
-  'Ziyaan',
-  'Zohaib',
-  'Zohair',
-  'Zoubaeir',
-  'Zubair',
-  'Zubayr',
-  'Zuriel',
-  ``,
-];
+const addDateSuffix = (date) => {
+  let dateStr = date.toString();
 
-const descriptionsBodies = [
-  'How to disagree with someone',
-  'iPhone review',
-  'how-to video',
-  'video essay on the history of video games',
-  'How to make money on the App Store',
-  'Learn NextJS in five minutes (Not clickbate)',
-  'Movie trailer',
-  'Hello world',
-  'Another possible solution to the algorithm',
-  'Apology video',
-  'Submission for startup pitch',
-];
+  // get last char of date string
+  const lastChar = dateStr.charAt(dateStr.length - 1);
 
-const possibleResponses = [
-  'I disagree!',
-  'I tried your algorithm, here were the results',
-  'This was awesome',
-  'Thank you for the great content',
-  'Please check out my video response',
-  'Like and subscribe to my channel please',
-  'Reply: The side effects of in app purchases on digital marketplaces',
-];
-
-const users = [];
-
-// Get a random item given an array
-const getRandomArrItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
-
-// Gets a random full name
-const getRandomName = () =>
-  `${getRandomArrItem(names)} ${getRandomArrItem(names)}`;
-
-// Function to generate random videos that we can add to the database. Includes video responses.
-const getRandomVideos = (int) => {
-  let results = [];
-  for (let i = 0; i < int; i++) {
-    results.push({
-      published: Math.random() < 0.5,
-      description: getRandomArrItem(descriptionsBodies),
-      advertiserFriendly: Math.random() < 0.5,
-      responses: [...getVideoResponses(3)],
-    });
+  if (lastChar === '1' && dateStr !== '11') {
+    dateStr = `${dateStr}st`;
+  } else if (lastChar === '2' && dateStr !== '12') {
+    dateStr = `${dateStr}nd`;
+  } else if (lastChar === '3' && dateStr !== '13') {
+    dateStr = `${dateStr}rd`;
+  } else {
+    dateStr = `${dateStr}th`;
   }
-  return results;
+
+  return dateStr;
 };
 
-// Create the responses that will be added to each video
-const getVideoResponses = (int) => {
-  if (int === 1) {
-    return getRandomArrItem(possibleResponses);
-  }
-  let results = [];
-  for (let i = 0; i < int; i++) {
-    results.push({
-      responseBody: getRandomArrItem(possibleResponses),
-      username: getRandomName(),
-    });
-  }
-  return results;
-};
+// function to format a timestamp, accepts the timestamp and an `options` object as parameters
+module.exports = (
+  timestamp,
+  { monthLength = 'short', dateSuffix = true } = {}
+) => {
+  // create month object
+  const months = {
+    0: monthLength === 'short' ? 'Jan' : 'January',
+    1: monthLength === 'short' ? 'Feb' : 'February',
+    2: monthLength === 'short' ? 'Mar' : 'March',
+    3: monthLength === 'short' ? 'Apr' : 'April',
+    4: monthLength === 'short' ? 'May' : 'May',
+    5: monthLength === 'short' ? 'Jun' : 'June',
+    6: monthLength === 'short' ? 'Jul' : 'July',
+    7: monthLength === 'short' ? 'Aug' : 'August',
+    8: monthLength === 'short' ? 'Sep' : 'September',
+    9: monthLength === 'short' ? 'Oct' : 'October',
+    10: monthLength === 'short' ? 'Nov' : 'November',
+    11: monthLength === 'short' ? 'Dec' : 'December',
+  };
 
-// Export the functions for use in seed.js
-module.exports = { getRandomName, getRandomVideos, getRandomVideos };
+  const dateObj = new Date(timestamp);
+  const formattedMonth = months[dateObj.getMonth()];
+
+  const dayOfMonth = dateSuffix
+    ? addDateSuffix(dateObj.getDate())
+    : dateObj.getDate();
+
+  const year = dateObj.getFullYear();
+  let hour =
+    dateObj.getHours() > 12
+      ? Math.floor(dateObj.getHours() - 12)
+      : dateObj.getHours();
+
+  // if hour is 0 (12:00am), change it to 12
+  if (hour === 0) {
+    hour = 12;
+  }
+
+  const minutes = (dateObj.getMinutes() < 10 ? '0' : '') + dateObj.getMinutes();
+
+  // set `am` or `pm`
+  const periodOfDay = dateObj.getHours() >= 12 ? 'pm' : 'am';
+
+  const formattedTimeStamp = `${formattedMonth} ${dayOfMonth}, ${year} at ${hour}:${minutes} ${periodOfDay}`;
+
+  return formattedTimeStamp;
+};

@@ -21,6 +21,7 @@ module.exports = {
       res.json(user);
     } catch (err) {
       res.status(500).json(err);
+      console.log(err)
     }
   },
   // create a new user
@@ -30,13 +31,14 @@ module.exports = {
       res.json(dbUserData);
     } catch (err) {
       res.status(500).json(err);
+      console.log(err)
     }
   },
   // update user by id
   async updateUser(req, res) {
     try {
       const updatedUser = await User.findOneAndUpdate(
-        { _id: req.params.id },
+        { _id: req.params.userId },
         req.body,
         { new: true, runValidators: true }
       );
@@ -55,7 +57,7 @@ module.exports = {
   // delete user
   async deleteUser(req, res) {
     try {
-      const deletedUser = await User.findOneAndDelete({ _id: req.params.id });
+      const deletedUser = await User.findOneAndDelete({ _id: req.params.userId });
 
       if (!deletedUser) {
         return res.status(404).json({ message: "No user with this id!" });
